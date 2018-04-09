@@ -6,6 +6,7 @@
 #include<vector>
 #include<math.h>
 #include"generator.h"
+#include "CheckRepete.h"
 using namespace std;
 
 extern vector<vector<int>> arrange;
