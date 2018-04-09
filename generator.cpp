@@ -1,4 +1,5 @@
 #include"generator.h"
+#include "CheckRepete.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
