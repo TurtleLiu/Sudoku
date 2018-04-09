@@ -1,4 +1,4 @@
-#pragma#pragma once
+#pragma once
 #ifndef __GENERATOR_H_
 #define __GENERATOR_H_
 #include<iostream>
