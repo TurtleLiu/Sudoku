@@ -5,8 +5,10 @@
 #include<iostream>
 #include<vector>
 #include<math.h>
+#include"generator.h"
+using namespace std;
 
-
+extern vector<vector<int>> arrange;
 int main(int argc, char** argv)
 {
 	/*输入检验*/
