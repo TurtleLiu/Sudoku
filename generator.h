@@ -6,4 +6,4 @@ using namespace std;
 
 void Generator(int N, int(*sudo)[9]);
 
-#endif once
+#endif
