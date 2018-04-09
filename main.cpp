@@ -7,6 +7,7 @@
 #include<math.h>
 #include"generator.h"
 #include "CheckRepete.h"
+#include "Display.h"
 using namespace std;
 
 extern vector<vector<int>> arrange;
@@ -32,7 +33,7 @@ int main(int argc, char** argv)
 			return -2;
 		}
 		int sudo[9][9];
-		Sudo_Generator(N, sudo);
+		Generator(N, sudo);
 	}
 	else if (strcmp(argv[1], "-s") == 0)//解数独
 	{
