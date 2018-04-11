@@ -1,3 +1,4 @@
+#include<time.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -5,14 +6,25 @@
 #include<iostream>
 #include<vector>
 #include<math.h>
-#include"generator.h"
+#include"Solve.h"
 #include "CheckRepete.h"
+#include"generator.h"
 #include "Display.h"
+#include "PailieZuhe.h"
+
 using namespace std;
 
 extern vector<vector<int>> arrange;
+extern vector<vector<int>> zuhe;
+
+
+char ch;
+char x[83];
 int main(int argc, char** argv)
 {
+	//clock_t start = clock();
+	srand((int)time(0));//根据时间生成随机数独
+	freopen("sudoku.txt", "w", stdout);
 	/*输入检验*/
 	if (strcmp(argv[1], "-c") == 0)//生成数独终局
 	{
@@ -37,12 +49,26 @@ int main(int argc, char** argv)
 	}
 	else if (strcmp(argv[1], "-s") == 0)//解数独
 	{
-
+		int tot = 0;
+		freopen(argv[2], "r", stdin);
+		while (scanf("%c", &ch) > 0)
+		{
+			if (ch < '0' || ch > '9')
+				continue;
+			x[tot++] = ch;
+			if (tot == 81)
+			{
+				SolveSudo(x);
+				tot = 0;
+			}
+		}
 	}
 	else if (strcmp(argv[1], "-c") != 0 && strcmp(argv[1], "-s") != 0)
 	{
 		printf("Wrong Input!\n");
 		return -3;
 	}
+	//clock_t ends = clock();
+	//cout << "Running Time : " << (double)(ends - start) / CLOCKS_PER_SEC << endl;
 	return 0;
 }
