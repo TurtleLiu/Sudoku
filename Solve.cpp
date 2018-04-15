@@ -7,227 +7,176 @@ DLX解决9*9的数独问题，转化为729*324的精确覆盖问题
 81代表着81个小格，限制着每一个小格只放一个数字。
 读入数据后，如果为'.'，则建9行，即有1-9种可能，否则建一行，表示某小格只能放确定的某个数字。
 */
-#include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
+#include <algorithm>
+
 using namespace std;
-const int INF = 0x7fffffff;
-const int NN = 350;
-const int MM = 750;
-#define N 9
-int n, m;    //列，行
-int cntc[NN];
-int L[NN*MM], R[NN*MM], U[NN*MM], D[NN*MM];//节点的左边，右边，上边，下边
-int C[NN*MM];
-int head;
-int mx[MM][NN];
-int O[MM], idx;
-int ans[10][10];
 
-//删除列及其相应的行
-void remove(int c)
+const int MAX = 1000;
+const int oo = 0x3f3f3f3f;
+const int nC = 9 * 9 * 4;
+const int delta[] = { 1,82,163,244 };
+const int head = 0;
+
+int cnt[MAX], st[MAX];
+int left[MAX*MAX], right[MAX*MAX], up[MAX*MAX], down[MAX*MAX];//节点的左边，右边，上边，下边
+int row[MAX*MAX], col[MAX*MAX];
+struct Ans
 {
-	int i, j;
-	L[R[c]] = L[c];
-	R[L[c]] = R[c];
-	for (i = D[c]; i != c; i = D[i])
-	{
-		for (j = R[i]; j != i; j = R[j])
+	int r, c, k;
+}ans[MAX*MAX];
+int M, K;
+
+void remove(const int& c)//删除列及其相应的行
+{
+	left[right[c]] = left[c];
+	right[left[c]] = right[c];
+	for (int i = down[c]; i != c; i = down[i])
+		for (int j = right[i]; j != i; j = right[j])
 		{
-			U[D[j]] = U[j];
-			D[U[j]] = D[j];
-			cntc[C[j]]--;
+			up[down[j]] = up[j];
+			down[up[j]] = down[j];
+			cnt[col[j]]--;
 		}
-	}
 }
 
-//恢复列及其相应的行
-void resume(int c)
+void resume(const int& c)//恢复列及其相应的行
 {
-	int i, j;
-	R[L[c]] = c;
-	L[R[c]] = c;
-	for (i = D[c]; i != c; i = D[i])
-	{
-		for (j = R[i]; j != i; j = R[j])
+	for (int i = up[c]; i != c; i = up[i])
+		for (int j = left[i]; j != i; j = left[j])
 		{
-			U[D[j]] = j;
-			D[U[j]] = j;
-			cntc[C[j]]++;
+			down[up[j]] = j;
+			up[down[j]] = j;
+			cnt[col[j]]++;
 		}
-	}
+	left[right[c]] = c;
+	right[left[c]] = c;
 }
 
-bool dfs()
+bool dfs(const int& k)
 {
-	int i, j, c;
-	if (R[head] == head)
+	if (right[head] == head)
+	{
+		char s[100] = { 0 };
+		char output[20];
+		for (int i = 0; i<k; i++)
+			s[ans[st[i]].r * 9 + ans[st[i]].c] = ans[st[i]].k + '0';
+		int count = 0;
+		for (int i = 0; i < 9; i++)
+		{
+		    printf("%c",s[count++]);
+		    for(j=1;j<9;j++)
+		        printf(" %c",s[count++]);
+		    printf("\n");
+		}
+		printf("\n");
 		return true;
-	int min = INF;
-	for (i = R[head]; i != head; i = R[i])
-	{
-		if (cntc[i] < min)
+	}
+
+	int s = oo, c = 0;
+	for (int i = right[head]; i != head; i = right[i])
+		if (cnt[i]<s)
 		{
-			min = cntc[i];
+			s = cnt[i];
 			c = i;
 		}
-	}
+
 	remove(c);
-	for (i = D[c]; i != c; i = D[i])
+	for (int i = down[c]; i != c; i = down[i])
 	{
-		//i是某点的序号，将该点所在行的行号保存
-		O[idx++] = (i - 1) / n;
-		for (j = R[i]; j != i; j = R[j])
-			remove(C[j]);
-		if (dfs())
+		st[k] = row[i];
+		for (int j = right[i]; j != i; j = right[j])
+			remove(col[j]);
+		if (dfs(k + 1))
 			return true;
-		for (j = L[i]; j != i; j = L[j])
-			resume(C[j]);
-		idx--;
+		for (int j = left[i]; j != i; j = left[j])
+			resume(col[j]);
 	}
 	resume(c);
+
 	return false;
 }
 
-int build()
+void Initial()
 {
-	int i, j, now, pre, first;
-	idx = head = 0;
-	for (i = 0; i < n; i++)
+	left[head] = nC;
+	right[head] = 1;
+	up[head] = down[head] = head;
+	for (int i = 1; i <= nC; i++)
 	{
-		R[i] = i + 1;
-		L[i + 1] = i;
+		left[i] = i - 1;
+		right[i] = (i + 1) % (nC + 1);
+		up[i] = down[i] = i;
+		cnt[i] = 0;
+		col[i] = i;
+		row[i] = 0;
 	}
-	R[n] = 0;
-	L[0] = n;
-	//列双向链表
-	for (j = 1; j <= n; j++)
-	{
-		pre = j;
-		cntc[j] = 0;
-		for (i = 1; i <= m; i++)
-		{
-			if (mx[i][j])
-			{
-				cntc[j]++;//j的边数
-				now = i*n + j;
-				C[now] = j;//C为列指针
-				D[pre] = now;
-				U[now] = pre;
-				pre = now;
-			}
-		}
-		U[j] = pre;
-		D[pre] = j;
-		if (cntc[j] == 0)
-			return 0;
-	}
-	//行双向链表
-	for (i = 1; i <= m; i++)
-	{
-		pre = first = -1;
-		for (j = 1; j <= n; j++)
-		{
-			if (mx[i][j])
-			{
-				now = i*n + j;
-				if (pre == -1)
-					first = now;
-				else
-				{
-					R[pre] = now;
-					L[now] = pre;
-				}
-				pre = now;
-			}
-		}
-		if (first != -1)
-		{
-			R[pre] = first;
-			L[first] = pre;
-		}
-	}
-	return 1;
+	M = 0;
+	K = nC;
 }
 
-int T;
-
-void print()
+int makecolhead(const int& c)
 {
-	int i, j;
-	int x, y, k;
-	for (i = 0; i < idx; i++)
-	{
-		int r = O[i];
-		k = r % 9;
-		if (k == 0) k = 9;
-		int num = (r - k) / 9 + 1;
-		y = num % 9;
-		if (y == 0) y = 9;
-		x = (num - y) / 9 + 1;
-		ans[x][y] = k;
-	}
-	if (idx == 0)
-		printf("impossible\n\n");
-	else
-	{
-		for (int i = 1; i < 10; i++)
-		{
-			printf("%d", ans[i][1]);
-			for (int j = 2; j < 10; j++)
-				printf(" %d", ans[i][j]);
-			printf("\n");
-		}
-		printf("\n");
-	}
-	
+	K++;
+	cnt[c]++;
+	col[K] = c;
+	row[K] = M;
+
+	left[K] = right[K] = K;
+
+	up[K] = c;
+	down[K] = down[c];
+	up[down[K]] = K;
+	down[up[K]] = K;
+	return K;
 }
 
-int map[MM][NN];
+void addcol(const int& id, const int& c)
+{
+	K++;
+	cnt[c]++;
+	col[K] = c;
+	row[K] = M;
+
+	left[K] = id;
+	right[K] = right[id];
+	left[right[K]] = K;
+	right[left[K]] = K;
+
+	up[K] = c;
+	down[K] = down[c];
+	up[down[K]] = K;
+	down[up[K]] = K;
+}
+
+void addrow(const int& i, const int& j, const int& k)
+{
+	int id;
+	M++;
+	ans[M].r = i;
+	ans[M].c = j;
+	ans[M].k = k + 1;
+	id = makecolhead(9 * i + j + delta[0]);
+	addcol(id, 9 * i + k + delta[1]);
+	addcol(id, 9 * j + k + delta[2]);
+	addcol(id, (i / 3 * 3 + j / 3) * 9 + k + delta[3]);
+}
+
 void SolveSudo(char x[83])
 {
-	int i, j, k;
-	int cases;
-	char cao[12];
-	char s[12][12];
-	char ch;
-	int ind = 0;
-	memset(mx, 0, sizeof(mx));
-	for (int i = 1; i <=N; i++)
-	for (int j = 1; j <= N; j++)
-			{
-				ch = x[ind++];
-				map[i][j] = ch - '0';
-			}
-	for (i = 1; i <= 9; i++)
+		
+	Initial();
+	for(int i=0; i < 9; i++)
+		for (int j = 0; j < 9; j++)
 		{
-	for (j = 1; j <= 9; j++)
-			{
-				int t = (i - 1) * 9 + j;
-				if (map[i][j] == 0)
-				{
-					for (k = 1; k <= 9; k++)
-					{
-						mx[9 * (t - 1) + k][t] = 1;               //81grid 每个小格只能放一个数字
-						mx[9 * (t - 1) + k][81 + (i - 1) * 9 + k] = 1;    //9row 每行数字k只能出现一次
-						mx[9 * (t - 1) + k][162 + (j - 1) * 9 + k] = 1;   //9col  每列数字k只能出现一次
-						mx[9 * (t - 1) + k][243 + ((i - 1) / 3 * 3 + (j + 2) / 3 - 1) * 9 + k] = 1;   //subgrid 每个3*3格子数字k只能出现一次
-					}
-				}
-				else
-				{
-					k = map[i][j];
-					mx[9 * (t - 1) + k][t] = 1;               //81grid
-					mx[9 * (t - 1) + k][81 + (i - 1) * 9 + k] = 1;    //9row
-					mx[9 * (t - 1) + k][162 + (j - 1) * 9 + k] = 1;   //9col
-					mx[9 * (t - 1) + k][243 + ((i - 1) / 3 * 3 + (j + 2) / 3 - 1) * 9 + k] = 1;   //subgrid
-				}
-			}
+			if (x[i * 9 + j] == '0')
+				for (int k = 0; k < 9; k++)
+					addrow(i, j, k);
+			else
+				addrow(i, j, x[i * 9 + j] - '1');
 		}
-		n = 324;
-		m = 729;
-		build();
-		dfs();
-		print();
+	dfs(0);
 	
 }
