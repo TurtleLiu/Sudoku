@@ -66,10 +66,15 @@ bool dfs(const int& k)
 		int count = 0;
 		for (int i = 0; i < 9; i++)
 		{
-		    printf("%c",s[count++]);
-		    for(j=1;j<9;j++)
-		        printf(" %c",s[count++]);
-		    printf("\n");
+			int num = 0;
+			output[num++] = s[count++];
+			for (int j = 1; j < 9; j++)
+			{
+				output[num++] = ' ';
+				output[num++] = s[count++];
+			}
+			output[num] = '\0';
+			puts(output);
 		}
 		printf("\n");
 		return true;
