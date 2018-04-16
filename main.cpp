@@ -37,12 +37,14 @@ int main(int argc, char** argv)
 				return -1;
 			}
 			else
+			{
 				N = N + (argv[2][i] - '0') * pow(10, (strlen(argv[2]) - i - 1));
-		}
-		if (N < 0 || N>1000000)
-		{
-			printf("Overflow!\n");//非法输入（越界）
-			return -2;
+				if (N < 0 || N>1000000)
+				{
+					printf("Overflow!\n");//非法输入（越界）
+					return -2;
+				}
+			}
 		}
 		int sudo[9][9];
 		Generator(N, sudo);
@@ -63,7 +65,7 @@ int main(int argc, char** argv)
 			}
 		}
 	}
-	else if (strcmp(argv[1], "-c") != 0 && strcmp(argv[1], "-s") != 0)
+	else if (strcmp(argv[1], "-c") != 0 && strcmp(argv[1], "-s") != 0)//错误参数
 	{
 		printf("Wrong Input!\n");
 		return -3;
