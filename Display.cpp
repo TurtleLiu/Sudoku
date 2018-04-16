@@ -20,3 +20,4 @@ void display(int(*sudo)[9])
 	}
 	printf("\n");
 }
+
