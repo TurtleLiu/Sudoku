@@ -8,6 +8,7 @@
 #include<math.h>
 using namespace std;
 
+
 vector<int> vec;
 vector<vector<int>> arrange;
 vector<vector<int>> zuhe;
