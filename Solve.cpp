@@ -5,7 +5,7 @@ DLX解决9*9的数独问题，转化为729*324的精确覆盖问题
 列：
 一共(9 + 9 + 9) * 9 + 81 == 324 种前面三个9分别代表着9行9列和9小块，乘以9的意思是9种可能(1 - 9)，因为每种可能只可以选择一个。
 81代表着81个小格，限制着每一个小格只放一个数字。
-读入数据后，如果为'.'，则建9行，即有1-9种可能，否则建一行，表示某小格只能放确定的某个数字。
+读入数据后，如果为'0'，则建9行，即有1-9种可能，否则建一行，表示某小格只能放确定的某个数字。
 */
 #include <cstdio>
 #include <cstring>
@@ -55,14 +55,14 @@ void resume(const int& c)//恢复列及其相应的行
 	right[left[c]] = c;
 }
 
-bool dfs(const int& k)
+bool dfs(const int& k)//深搜求解
 {
-	if (right[head] == head)
+	if (right[head] == head)//已经选够
 	{
 		char s[100] = { 0 };
 		char output[20];
 		for (int i = 0; i<k; i++)
-			s[ans[st[i]].r * 9 + ans[st[i]].c] = ans[st[i]].k + '0';
+			s[ans[st[i]].r * 9 + ans[st[i]].c] = ans[st[i]].k + '0';//s[行*9+列]
 		int count = 0;
 		for (int i = 0; i < 9; i++)
 		{
@@ -79,7 +79,7 @@ bool dfs(const int& k)
 		printf("\n");
 		return true;
 	}
-
+	//遍历列标元素，选一个元素最少的列（回溯率低）
 	int s = oo, c = 0;
 	for (int i = right[head]; i != head; i = right[i])
 		if (cnt[i]<s)
@@ -88,23 +88,24 @@ bool dfs(const int& k)
 			c = i;
 		}
 
-	remove(c);
+	remove(c);//选好就移除
+	//遍历该列各“1”元素
 	for (int i = down[c]; i != c; i = down[i])
 	{
 		st[k] = row[i];
-		for (int j = right[i]; j != i; j = right[j])
+		for (int j = right[i]; j != i; j = right[j]) // 移除与该元素同行元素的列
 			remove(col[j]);
-		if (dfs(k + 1))
+		if (dfs(k + 1))// 已选行数+1，递归调用
 			return true;
-		for (int j = left[i]; j != i; j = left[j])
+		for (int j = left[i]; j != i; j = left[j])// 递归返回false，说明后续无法满足，故恢复与该元素同行元素的列，循坏进入本列下一元素
 			resume(col[j]);
 	}
-	resume(c);
+	resume(c);//所有后续都无法满足，恢复
 
 	return false;
 }
 
-void Initial()
+void Initial()//初始化函数
 {
 	left[head] = nC;
 	right[head] = 1;
@@ -122,7 +123,7 @@ void Initial()
 	K = nC;
 }
 
-int makecolhead(const int& c)
+int makecolhead(const int& c)//建立链表
 {
 	K++;
 	cnt[c]++;
@@ -138,7 +139,7 @@ int makecolhead(const int& c)
 	return K;
 }
 
-void addcol(const int& id, const int& c)
+void addcol(const int& id, const int& c)//生成列函数
 {
 	K++;
 	cnt[c]++;
@@ -156,7 +157,7 @@ void addcol(const int& id, const int& c)
 	down[up[K]] = K;
 }
 
-void addrow(const int& i, const int& j, const int& k)
+void addrow(const int& i, const int& j, const int& k)//生成行函数
 {
 	int id;
 	M++;
