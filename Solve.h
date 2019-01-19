@@ -6,7 +6,6 @@
 #include <cstring>
 #include <cstdlib>
 #inlcude <algorithm>
-#inlcude <stdio.h>
 using namespace std;
 void SolveSudo(char x[83]);
 #endif      
